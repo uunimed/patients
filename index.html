@@ -198,13 +198,19 @@
             break-inside: avoid-column; page-break-inside: avoid; /* არ გაიჭრას შუაზე სვეტებს შორის */
         }
 .med-text { 
-            width: 85%; 
-            white-space: nowrap; /* ეს ხელს შეუშლის ტექსტის ახალ ხაზზე გადასვლას */
-            overflow: hidden;    /* ეს აუცილებელია, თუ ტექსტი კონტეინერზე გრძელია */
-            text-overflow: ellipsis; /* თუ ძალიან გრძელი იქნება, ბოლოში წერტილებს დაუსვამს */
-        }
-        .med-actions { display: flex; gap: 5px; }
-        .med-btn {
+    flex: 1;             /* იკავებს მთელ თავისუფალ ადგილს */
+    min-width: 0;        /* აუცილებელია, რომ გრძელმა ტექსტმა კონტეინერი არ გაარღვიოს */
+    padding-right: 5px;  /* ღილაკებს რომ არ მიედოს ეკრანზე */
+    white-space: nowrap; 
+    overflow: hidden;    
+    text-overflow: ellipsis; 
+}
+.med-actions { 
+    display: flex; 
+    gap: 5px; 
+    flex-shrink: 0; /* იცავს ღილაკებს შეკუმშვისგან, როცა ტექსტი გრძელია */
+}
+.med-btn {
             background: none; border: none; cursor: pointer; padding: 2px 5px;
             display: flex; align-items: center; justify-content: center; color: #94a3b8;
         }
@@ -256,6 +262,9 @@
         size: A4 landscape; 
         margin: 0.5cm;
     }
+    
+    .other-input { display: none !important; }
+    .other-print-view { display: block !important; }
     body { 
         background: none !important; 
         margin: 0 !important; 
@@ -455,6 +464,14 @@
     transition: 0.2s;
 }
 .close-modal-btn svg { display: block; }
+
+.other-print-view { 
+    display: none; 
+    flex-grow: 1; 
+    word-break: break-word; 
+    white-space: pre-wrap; 
+    line-height: 1.2;
+}
 
     </style>
 </head>
@@ -787,10 +804,11 @@ window.showDetails = function(id) {
                                 <div class="next-diet-output">${p.nextDiet || ''}</div>
                             </div>
 
-                            <div class="info-line">
-                                <label>სხვა: </label>
-                                <input type="text" id="other_${p.id}" style="flex-grow: 1;" value="${p.other || ''}" onchange="updateField('${p.id}', 'other', this.value)">
-                            </div>
+<div class="info-line" style="align-items: flex-start;">
+    <label style="margin-top: 2px;">სხვა: </label>
+    <input type="text" id="other_${p.id}" class="other-input" style="flex-grow: 1;" value="${p.other || ''}" oninput="document.getElementById('otherPrint_${p.id}').innerText = this.value" onchange="updateField('${p.id}', 'other', this.value)">
+    <span id="otherPrint_${p.id}" class="other-print-view">${p.other || ''}</span>
+</div>
                         </div>
 
                         <div class="col-right">
