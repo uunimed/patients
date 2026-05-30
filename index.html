@@ -398,6 +398,24 @@
     white-space: nowrap;
 }
 
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #e2e8f0;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    transition: 0.2s;
+}
+.close-modal-btn svg { display: block; }
+
     </style>
 </head>
 <body>
@@ -622,26 +640,29 @@ window.showDetails = function(id) {
     const content = document.getElementById('details-content');
     const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-';
     
-// showDetails ფუნქციაში შეასწორეთ ეს ნაწილი:
-content.innerHTML = `
-    <h2 style="margin-top:0;">${p.name || 'უცნობი პაციენტი'}</h2>
-    <div class="details-grid">
-        <div>
-            <p><strong>პალატა:</strong> ${p.room || '-'}</p>
-            <p><strong>ტკივილი:</strong> ${p.pain || '-'}</p>
-            <p><strong>ალერგია:</strong> ${p.allergy || '-'} ${p.allergyDetails ? '(' + p.allergyDetails + ')' : ''}</p>
+    content.innerHTML = `
+        <button class="close-modal-btn" onclick="document.getElementById('details-overlay').style.display='none'">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="3" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <h2 style="margin-top:0;">${p.name || 'უცნობი პაციენტი'}</h2>
+        <div class="details-grid">
+            <div>
+                <p><strong>პალატა:</strong> ${p.room || '-'}</p>
+                <p><strong>დამატების თარიღი:</strong> ${date}</p>
+                <p><strong>ტკივილი:</strong> ${p.pain || '-'}</p>
+                <p><strong>ალერგია:</strong> ${p.allergy || '-'} ${p.allergyDetails ? '(' + p.allergyDetails + ')' : ''}</p>
+            </div>
+            <div>
+                <p><strong>ცხელება:</strong> ${p.fever || '-'} ${p.feverTemp ? '(' + p.feverTemp + '°C)' : ''}</p>
+                <p><strong>კვება:</strong> ${p.diet || '-'}</p>
+            </div>
         </div>
-        <div>
-            <p><strong>ცხელება:</strong> ${p.fever || '-'} ${p.feverTemp ? '(' + p.feverTemp + '°C)' : ''}</p>
-            <p><strong>კვება:</strong> ${p.diet || '-'}</p>
+        <hr>
+        <h3>დანიშნულება</h3>
+        <div style="column-count: 2; column-gap: 30px;">
+            ${renderMedications(p.id, p.medications || [], true)}
         </div>
-    </div>
-    <hr>
-    <h3>დანიშნულება</h3>
-    <div style="column-count: 2; column-gap: 30px;">
-        ${renderMedications(p.id, p.medications || [], true)}
-    </div>
-`;
+    `;
     document.getElementById('details-overlay').style.display = 'block';
 }
 
