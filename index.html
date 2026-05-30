@@ -224,46 +224,180 @@
         .btn-arch.view { background-color: #3b82f6; }
         .btn-arch.del { background-color: #ef4444; }
 
-        @media print {
-            @page { size: A4 landscape; margin: 0.5cm; }
-            body { background: none !important; margin: 0 !important; padding: 0 !important; }
-            .controls, .med-inputs, .btn-delete-row, .med-actions, #archive-container { display: none !important; }
-            #main-interface { display: block !important; }
-            
-            .page-container {
-                width: 100% !important;
-                margin-left: 0 !important;
-                margin-right: auto !important; 
-                box-shadow: none !important;
-                padding: 0 !important;
-            }
-            
-            .patient-row { 
-                height: 35mm !important;
-                border-bottom: 1px solid #000 !important;
-                padding: 1mm 0 !important;
-            }
+@media print {
+    @page { 
+        size: A4 landscape; 
+        margin: 0.5cm;
+    }
+    body { 
+        background: none !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+    }
+    .controls, .med-inputs, .btn-delete-row, .btn-delete-row-inline, .med-actions, #archive-container { 
+        display: none !important; 
+    }
+    #main-interface { 
+        display: block !important; 
+    }
+    
+    .page-container {
+        width: 50% !important;        /* 100% -> 50% */
+        max-width: 50% !important;
+        margin-left: 0 !important;
+        margin-right: auto !important; 
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+    
+    /* მთავარი ცვლილება: პაციენტი არასდროს გაიჭრება შუაზე */
+    .patient-row { 
+        min-height: 35mm !important;
+        border-bottom: 1px solid #000 !important;
+        padding: 1mm 0 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: auto !important;
+    }
+    
+    /* 5 პაციენტის შემდეგ იწყება ახალი გვერდი */
+    .patient-row:nth-child(5n) { 
+        page-break-after: always !important;
+        break-after: page !important;
+    }
+    
+    .patient-row:nth-child(5n+1) {
+        page-break-before: avoid !important;
+    }
 
-            .header-inputs { gap: 4px !important; }
-            .info-line { font-size: 11px !important; margin-bottom: 1px !important; }
-            .med-list { font-size: 10px !important; }
-            .header-inputs input { font-size: 12px !important; }
-            
-            .col-left { width: 55% !important; padding-right: 5px !important; }
-            .col-right { width: 45% !important; padding-left: 5px !important; }
-            
-            .patient-row:nth-child(5n) { page-break-after: always; }
-            
-            .col-left { border-right: 1.5px solid #000; padding-right: 5px;}
-            .header-inputs { background-color: transparent !important; padding: 0 !important; margin-bottom: 2px !important; }
-            .header-inputs input { border-bottom: 1px solid #000 !important; color: #000; font-size: 13px; }
-            .header-inputs input:not(:placeholder-shown) { border-bottom: none !important; }
-            
-            .info-line select, .info-line input[type="text"] { border: none !important; background: transparent !important; padding: 0 !important; height: auto; appearance: none; -webkit-appearance: none; pointer-events: none; }
-            .allergy-details { display: none !important; }
-            .allergy-print-view { display: inline !important; }
-            .med-item-wrapper { border-bottom: none !important; margin-bottom: 1px !important;}
-        }
+    .header-inputs { gap: 4px !important; }
+    .info-line { font-size: 11px !important; margin-bottom: 1px !important; }
+    .med-list { 
+        font-size: 10px !important;
+        column-count: 2 !important;
+        column-gap: 10px !important;
+    }
+    .header-inputs input { font-size: 12px !important; }
+    
+    .col-left { width: 55% !important; padding-right: 5px !important; }
+    .col-right { width: 45% !important; padding-left: 5px !important; }
+    
+    .col-left { border-right: 1.5px solid #000; padding-right: 5px;}
+    .header-inputs { background-color: transparent !important; padding: 0 !important; margin-bottom: 2px !important; }
+    .header-inputs input { border-bottom: 1px solid #000 !important; color: #000; font-size: 13px; }
+    .header-inputs input:not(:placeholder-shown) { border-bottom: none !important; }
+    
+    .info-line select, .info-line input[type="text"] { border: none !important; background: transparent !important; padding: 0 !important; height: auto; appearance: none; -webkit-appearance: none; pointer-events: none; }
+    .allergy-details { display: none !important; }
+    .allergy-print-view { display: inline !important; }
+    .med-item-wrapper { border-bottom: none !important; margin-bottom: 1px !important; }
+    
+    /* მედიკამენტების სია - არ გაიჭრას შუაში */
+    .med-list {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+    
+    .med-item-wrapper {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+}
+        /* დღის და ღამის წამლების გამყოფი */
+.med-list {
+    position: relative;
+}
+
+.btn-delete-row-inline {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+.btn-delete-row-inline:hover {
+    background-color: #dc2626;
+    transform: scale(1.05);
+}
+.btn-delete-row-inline svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* არქივის ცხრილის სტილები */
+.archive-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.archive-table th { background: #f1f5f9; padding: 10px; text-align: left; font-size: 13px; border-bottom: 2px solid #cbd5e1; }
+.archive-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+
+.details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.med-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.med-table td { border: 1px solid #e2e8f0; padding: 8px; }
+
+/* არქივის ღილაკების სტილები */
+.btn-arch {
+    display: inline-block;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    color: white;
+    margin-right: 5px;
+}
+.btn-details { background-color: #3b82f6; } /* ლურჯი */
+.btn-restore { background-color: #10b981; } /* მწვანე */
+.btn-delete { background-color: #ef4444; }  /* წითელი */
+.btn-arch:hover { opacity: 0.9; }
+
+/* დეტალური მოდალური ფანჯარა */
+#details-modal-box {
+    background: white; 
+    padding: 25px; 
+    border-radius: 12px; 
+    width: 90%;          /* ეკრანის 90% */
+    max-width: 1000px;   /* მაქსიმალური სიგანე 1000px */
+    max-height: 85vh;    /* ეკრანის სიმაღლის 85% */
+    overflow-y: auto; 
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    margin: 5vh auto;    /* ცენტრში დასმა */
+}
+
+/* დახურვის ღილაკის სტილი */
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #e2e8f0;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #475569;
+    transition: 0.2s;
+}
+.close-modal-btn:hover {
+    background: #cbd5e1;
+    color: #0f172a;
+}
+
+/* არქივის ცხრილის ღილაკების გასწორება მარჯვნივ */
+.archive-actions-cell {
+    text-align: right; /* ღილაკების მარჯვნივ გადატანა */
+    white-space: nowrap;
+}
+
     </style>
 </head>
 <body>
@@ -272,6 +406,13 @@
         <div class="spinner"></div>
         <p style="color: #3b82f6; font-weight: bold; margin: 0;">იტვირთება...</p>
     </div>
+
+<div id="details-overlay" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:20000; padding:1cm; box-sizing:border-box;">
+<div id="details-modal-box" style="position: relative;">
+    <button class="close-modal-btn" onclick="document.getElementById('details-overlay').style.display='none'">✕</button>
+    <div id="details-content"></div>
+</div>
+</div>
 
     <div id="modal-overlay">
         <div id="modal-box">
@@ -445,50 +586,64 @@
             });
         }
 
-        window.filterArchive = function() {
-            const query = document.getElementById('archive-search').value.toLowerCase();
-            const archList = document.getElementById('archive-list');
-            archList.innerHTML = '';
-            
-            const filtered = archivePatients.filter(p => 
-                (p.name && p.name.toLowerCase().includes(query)) || 
-                (p.room && p.room.toLowerCase().includes(query))
-            );
+window.filterArchive = function() {
+    const query = document.getElementById('archive-search').value.toLowerCase();
+    const archList = document.getElementById('archive-list');
+    archList.innerHTML = `
+        <table class="archive-table">
+            <thead><tr><th>პაციენტი</th><th>პალატა</th><th>თარიღი</th><th>მოქმედება</th></tr></thead>
+            <tbody id="archive-body"></tbody>
+        </table>`;
+    
+    const body = document.getElementById('archive-body');
+    const filtered = archivePatients.filter(p => (p.name?.toLowerCase().includes(query)));
+    document.getElementById('archive-counter').innerText = filtered.length;
 
-            document.getElementById('archive-counter').innerText = filtered.length;
-            
-            filtered.forEach((p) => {
-                let medsHTML = '<div style="color:#94a3b8; font-size:13px; margin-top:8px;">არაა დანიშნულება</div>';
-                if(p.medications && p.medications.length > 0) {
-                    medsHTML = `<div class="archive-meds-list">` + 
-                        p.medications.map(m => `<div class="archive-med-item"><strong>${m.time}</strong> - ${m.name}</div>`).join('') + 
-                    `</div>`;
-                }
+    filtered.forEach(p => {
+        const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-';
+        const row = document.createElement('tr');
+// filterArchive ფუნქციის ბოლო ნაწილში:
+row.innerHTML = `
+    <td>${p.name || 'უცნობი'}</td>
+    <td>${p.room || '-'}</td>
+    <td>${date}</td>
+    <td class="archive-actions-cell">
+        <button class="btn-arch btn-details" onclick="showDetails('${p.id}')">დეტალურად</button>
+        <button class="btn-arch btn-restore" onclick="restoreToLive('${p.id}')">აღდგენა</button>
+        <button class="btn-arch btn-delete" onclick="deleteFromArchive('${p.id}')">წაშლა</button>
+    </td>
+`;
+        body.appendChild(row);
+    });
+}
 
-                const statusLabel = p.isActive ? '<span style="color: #10b981; font-size:12px;">[აქტიური]</span>' : '<span style="color: #64748b; font-size:12px;">[დასრულებული]</span>';
-                
-                const itemHTML = `
-                    <div class="archive-item">
-                        <div class="archive-info">
-                            <h4>${p.name || 'უცნობი პაციენტი'} (პალატა №: ${p.room || '-'}) ${statusLabel}</h4>
-                            <p style="margin:0;"><strong>ჩივილი:</strong> ${p.complaint || '-'}</p>
-                            ${medsHTML}
-                        </div>
-                        <div class="archive-actions">
-                            <button class="btn-arch view" onclick="restoreToLive('${p.id}')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
-                                აღდგენა
-                            </button>
-                            <button class="btn-arch del" onclick="deleteFromArchive('${p.id}')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                წაშლა
-                            </button>
-                        </div>
-                    </div>
-                `;
-                archList.insertAdjacentHTML('beforeend', itemHTML);
-            });
-        }
+window.showDetails = function(id) {
+    const p = archivePatients.find(x => x.id === id);
+    const content = document.getElementById('details-content');
+    const date = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-';
+    
+// showDetails ფუნქციაში შეასწორეთ ეს ნაწილი:
+content.innerHTML = `
+    <h2 style="margin-top:0;">${p.name || 'უცნობი პაციენტი'}</h2>
+    <div class="details-grid">
+        <div>
+            <p><strong>პალატა:</strong> ${p.room || '-'}</p>
+            <p><strong>ტკივილი:</strong> ${p.pain || '-'}</p>
+            <p><strong>ალერგია:</strong> ${p.allergy || '-'} ${p.allergyDetails ? '(' + p.allergyDetails + ')' : ''}</p>
+        </div>
+        <div>
+            <p><strong>ცხელება:</strong> ${p.fever || '-'} ${p.feverTemp ? '(' + p.feverTemp + '°C)' : ''}</p>
+            <p><strong>კვება:</strong> ${p.diet || '-'}</p>
+        </div>
+    </div>
+    <hr>
+    <h3>დანიშნულება</h3>
+    <div style="column-count: 2; column-gap: 30px;">
+        ${renderMedications(p.id, p.medications || [], true)}
+    </div>
+`;
+    document.getElementById('details-overlay').style.display = 'block';
+}
 
         function fixVisibility(p) {
             setTimeout(() => {
@@ -512,29 +667,29 @@
             activePatients.forEach((p, index) => {
                 const rowHTML = `
                     <div class="patient-row" data-id="${p.id}">
-                        <button class="btn-delete-row no-print" onclick="deletePatient('${p.id}')" title="მთავარი გვერდიდან წაშლა">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        </button>
+
                         
                         <div class="col-left">
-                            <div class="header-inputs">
-                                <input type="text" id="name_${p.id}" class="input-name" value="${p.name || ''}" placeholder="პაციენტი" onchange="updateField('${p.id}', 'name', this.value)">
-                                <input type="text" id="room_${p.id}" class="input-room" value="${p.room || ''}" placeholder="პალატა" onchange="updateField('${p.id}', 'room', this.value)">
-                                <input type="text" id="complaint_${p.id}" class="input-complaint" value="${p.complaint || ''}" placeholder="ჩივილი / ჩარევა" onchange="updateField('${p.id}', 'complaint', this.value)">
-                            </div>
-                            
+<div class="header-inputs">
+    <input type="text" id="name_${p.id}" class="input-name" value="${p.name || ''}" placeholder="პაციენტი" onchange="updateField('${p.id}', 'name', this.value)">
+    <input type="text" id="room_${p.id}" class="input-room" value="${p.room || ''}" placeholder="№" onchange="updateField('${p.id}', 'room', this.value)">
+    <input type="text" id="complaint_${p.id}" class="input-complaint" value="${p.complaint || ''}" placeholder="ჩივილი / ჩარევა" onchange="updateField('${p.id}', 'complaint', this.value)">
+    <button class="btn-delete-row-inline no-print" onclick="deletePatient('${p.id}')" title="პაციენტის წაშლა">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+</div>
                             <div class="info-line">
-                                <label>ტკივილი-</label>
+                                <label>ტკივილი: </label>
                                 <select id="pain_${p.id}" onchange="updateField('${p.id}', 'pain', this.value)">
                                     <option value=""></option>
                                     <option value="კი" ${p.pain === 'კი' ? 'selected' : ''}>კი</option>
                                     <option value="არა" ${p.pain === 'არა' ? 'selected' : ''}>არა</option>
-                                    <option value="საშ." ${p.pain === 'საშ.' ? 'selected' : ''}>საშ.</option>
+                                    <option value="საშუალო" ${p.pain === 'საშუალო' ? 'selected' : ''}>საშუალო</option>
                                 </select>
                             </div>
                             
                             <div class="info-line">
-                                <label>ალერგია-</label>
+                                <label>ალერგია: </label>
                                 <select id="allergy_${p.id}" onchange="toggleLocalAllergy('${p.id}', this)">
                                     <option value=""></option>
                                     <option value="არა" ${p.allergy === 'არა' ? 'selected' : ''}>არა</option>
@@ -545,7 +700,7 @@
                             </div>
                             
                             <div class="info-line">
-                                <label>ცხელება-</label>
+                                <label>ცხელება: </label>
                                 <select id="fever_${p.id}" onchange="toggleLocalFever('${p.id}', this)">
                                     <option value=""></option>
                                     <option value="არა" ${p.fever === 'არა' ? 'selected' : ''}>არა</option>
@@ -572,16 +727,16 @@
                             </div>
 
                             <div class="info-line">
-                                <label>სხვა-</label>
+                                <label>სხვა: </label>
                                 <input type="text" id="other_${p.id}" style="flex-grow: 1;" value="${p.other || ''}" onchange="updateField('${p.id}', 'other', this.value)">
                             </div>
                         </div>
 
                         <div class="col-right">
                             <div class="med-inputs">
-                                <input type="text" id="time_${p.id}" class="med-time" placeholder="დრო" maxlength="5" oninput="formatTime(event)" onkeydown="checkMedEnter(event, '${p.id}', this)">
-                                <input type="text" id="med_${p.id}" class="med-name" placeholder="მედიკამენტი" onkeydown="checkMedEnter(event, '${p.id}', this)">
-                            </div>
+<input type="text" id="time_${p.id}" class="med-time" placeholder="დრო" maxlength="5" oninput="formatTimeAndAutoMove(event, '${p.id}')">
+<input type="text" id="med_${p.id}" class="med-name" placeholder="მედიკამენტი" onkeydown="checkMedEnter(event, '${p.id}', this)">
+</div>
                             <div class="med-list">
                                 ${renderMedications(p.id, p.medications || [])}
                             </div>
@@ -593,24 +748,94 @@
             });
         }
 
-        function renderMedications(patientId, meds) {
-            return meds.map((m, i) => `
-                <div class="med-item-wrapper">
-                    <div class="med-text"><strong>${m.time}</strong> - ${m.name}</div>
-                    <div class="med-actions no-print">
-                        <button class="med-btn edit" onclick="editMed('${patientId}', ${i})" title="რედაქტირება">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
-                        <button class="med-btn del" onclick="removeMed('${patientId}', ${i})" title="წაშლა">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+window.moveToMedOnTime = function(event, id) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const timeInput = event.target;
+        let timeVal = timeInput.value.trim();
+        
+        // ავტომატური ფორმატირება
+        if (timeVal && !timeVal.includes(':') && timeVal.length <= 2) {
+            timeVal = timeVal.padStart(2, '0') + ':00';
+            timeInput.value = timeVal;
         }
+        
+        // გადავიდეთ მედიკამენტის ველზე
+        const medInput = timeInput.closest('.col-right').querySelector('.med-name');
+        if (medInput) {
+            medInput.focus();
+        }
+    }
+}
+
+window.formatTimeAndAutoMove = function(event, id) {
+    // ფორმატირება
+    let val = event.target.value.replace(/[^0-9]/g, '');
+    if (val.length >= 2) {
+        val = val.substring(0, 2) + ':' + val.substring(2, 4);
+    }
+    event.target.value = val;
+    
+    // თუ 5 სიმბოლოა (HH:MM ფორმატში) 
+    if (val.length === 5) {
+        // ავტომატურად გადავიდეთ მედიკამენტის ველზე
+        const medInput = event.target.closest('.col-right').querySelector('.med-name');
+        if (medInput) {
+            medInput.focus();
+        }
+    }
+}
+
+window.renderMedications = function(patientId, meds, isArchive = false) {
+    if (!meds || meds.length === 0) {
+        return '<div style="color:#94a3b8; font-size:12px; text-align:center;">არაა დანიშნულება</div>';
+    }
+    
+    // დავალაგოთ წამლები დროის მიხედვით
+    const sortedMeds = [...meds].sort((a, b) => a.time.localeCompare(b.time));
+    
+    // გავყოთ ორ ჯგუფად: 09:00-23:59 და 00:00-08:59
+    const dayMeds = sortedMeds.filter(m => m.time >= '09:00' && m.time <= '23:59');
+    const nightMeds = sortedMeds.filter(m => m.time >= '00:00' && m.time <= '08:59');
+    
+    // დამხმარე ფუნქცია მედიკამენტის HTML-ის ასაგებად
+    const buildMedHTML = (m) => {
+        const index = meds.findIndex(med => med.time === m.time && med.name === m.name);
+        return `
+            <div class="med-item-wrapper">
+                <div class="med-text"><strong>${m.time}</strong> - ${m.name}</div>
+                ${!isArchive ? `
+                <div class="med-actions no-print">
+                    <button class="med-btn edit" onclick="editMed('${patientId}', ${index})" title="რედაქტირება">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="med-btn del" onclick="removeMed('${patientId}', ${index})" title="წაშლა">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                </div>` : ''}
+            </div>
+        `;
+    };
+
+    let result = '';
+    
+    if (dayMeds.length > 0) {
+        result += dayMeds.map(buildMedHTML).join('');
+    }
+    
+    if (dayMeds.length > 0 && nightMeds.length > 0) {
+        result += '<div style="border-top: 2px solid #cbd5e1; margin: 8px 0 4px 0;"></div>';
+    }
+    
+    if (nightMeds.length > 0) {
+        result += nightMeds.map(buildMedHTML).join('');
+    }
+    
+    return result;
+};
 
         window.removeMed = function(patientId, index) {
-            showModal('confirm', 'დანიშნულების წაშლა', 'ნამდვილად გსურთ ამ წამლის წაშლა?', '', async (confirmed) => {
+            showModal('confirm', 'დანიშნულების წაშლა', 'ნამდვილად გსურთ ამ მედიკამენტის წაშლა?', '', async (confirmed) => {
                 if(confirmed) {
                     const p = activePatients.find(x => x.id === patientId);
                     let meds = p.medications || [];
@@ -625,9 +850,9 @@
             let meds = p.medications || [];
             let med = meds[index];
             
-            showModal('prompt', 'დროის რედაქტირება', 'შეცვალეთ წამლის მიცემის დრო:', med.time, (newTime) => {
+            showModal('prompt', 'დროის რედაქტირება', 'შეცვალეთ მედიკამენტის მიცემის დრო:', med.time, (newTime) => {
                 if(newTime !== null) {
-                    showModal('prompt', 'წამლის რედაქტირება', 'შეცვალეთ წამლის დასახელება:', med.name, async (newName) => {
+                    showModal('prompt', 'მედიკამენტის რედაქტირება', 'შეცვალეთ მედიკამენტის დასახელება:', med.name, async (newName) => {
                         if(newName !== null) {
                             meds[index] = { time: newTime.trim(), name: newName.trim() };
                             meds.sort((a, b) => a.time.localeCompare(b.time));
@@ -727,32 +952,43 @@
             return val;
         }
 
-        window.checkMedEnter = async function(event, id, inputElem) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const card = inputElem.closest('.col-right');
-                const timeIn = card.querySelector('.med-time');
-                const nameIn = card.querySelector('.med-name');
-                
-                let timeVal = timeIn.value.trim();
-                let nameVal = nameIn.value.trim();
-                
-                if(!timeVal || !nameVal) return;
-                
-                if (!timeVal.includes(':') && timeVal.length <= 2) {
-                    timeVal = timeVal.padStart(2, '0') + ':00';
-                }
-
-                const currentPatient = activePatients.find(p => p.id === id);
-                let currentMeds = currentPatient.medications || [];
-                currentMeds.push({ time: timeVal, name: nameVal });
-                
-                currentMeds.sort((a, b) => a.time.localeCompare(b.time));
-                
-                await update(ref(db, "patients_registry/" + id), { medications: currentMeds });
-                nameIn.value = ''; nameIn.focus();
-            }
+window.checkMedEnter = async function(event, id, inputElem) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const medName = inputElem.value.trim();
+        const timeInput = inputElem.closest('.col-right').querySelector('.med-time');
+        let timeVal = timeInput.value.trim();
+        
+        // თუ მედიკამენტი ცარიელია, უბრალოდ დავბრუნდეთ დროზე
+        if (!medName) {
+            timeInput.focus();
+            return;
         }
+        
+        // თუ დრო არ არის შევსებული, დავბრუნდეთ დროზე
+        if (!timeVal) {
+            timeInput.focus();
+            return;
+        }
+        
+        // წამლის შენახვა
+        const currentPatient = activePatients.find(p => p.id === id);
+        let currentMeds = currentPatient.medications || [];
+        currentMeds.push({ time: timeVal, name: medName });
+        currentMeds.sort((a, b) => a.time.localeCompare(b.time));
+        
+        await update(ref(db, "patients_registry/" + id), { medications: currentMeds });
+        
+        // რენდერის შემდეგ ფოკუსის აღსადგენად
+        setTimeout(() => {
+            const newTimeInput = document.querySelector(`#time_${id}`);
+            if (newTimeInput) {
+                newTimeInput.value = '';
+                newTimeInput.focus();
+            }
+        }, 50);
+    }
+}
 
         window.toggleArchive = function() {
             const archCont = document.getElementById('archive-container');
