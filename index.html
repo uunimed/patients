@@ -104,17 +104,29 @@
         button.btn-logout { background-color: #ef4444; }
 
         /* ---------------- ფართო დიზაინი (A4 Landscape ფორმატი ეკრანზე) ---------------- */
-        .page-container {
-            width: 297mm; max-width: 100%; min-height: 210mm; background: white; padding: 10mm;
-            box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            display: flex; flex-direction: column; border-radius: 12px; margin-bottom: 20px;
-        }
+.page-container {
+    width: 100%;                 /* ← შეცვალეთ 297mm-დან */
+    max-width: 100%;            /* ← დატოვეთ ან შეცვალეთ 100%-ზე */
+    min-height: 210mm;
+    background: white;
+    padding: 20px;              /* ← შეამცირეთ padding, რომ მეტი ადგილი იყოს */
+    box-sizing: border-box;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
 
-        .patient-row {
-            min-height: 38mm; /* სტანდარტული სიმაღლე 5 პაციენტისთვის */
-            display: flex; border-bottom: 1.5px solid #cbd5e1; box-sizing: border-box;
-            position: relative; padding: 8px 0;
-        }
+.patient-row {
+    height: 70mm;
+    min-height: 38mm;/* ← დავაფიქსიროთ სიმაღლე (ან min-height-ის ნაცვლად) */
+    display: flex;
+    border-bottom: 1.5px solid #cbd5e1;
+    box-sizing: border-box;
+    position: relative;
+    padding: 8px 0;
+}
         .patient-row:last-child { border-bottom: none; }
 
         .btn-delete-row {
@@ -130,9 +142,13 @@
             width: 55%; border-right: 1.5px solid #cbd5e1; padding: 5px 15px 5px 0;
             display: flex; flex-direction: column; justify-content: flex-start; gap: 4px;
         }
-        .col-right {
-            width: 45%; padding: 5px 0 5px 15px; display: flex; flex-direction: column;
-        }
+.col-right {
+    width: 45%;
+    padding: 5px 0 5px 15px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;            /* ← დაუმატეთ */
+}
 
         /* მომრგვალებული საერთო ბექგრაუნდი ჰედერისთვის */
         .header-inputs { 
@@ -165,19 +181,16 @@
         .med-time { width: 50px !important; text-align: center; font-weight: bold; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px;}
         .med-name { flex-grow: 1; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px;}
 
-        /* 2 სვეტად განაწილება წამლებისთვის */
 .med-list { 
-    flex-grow: 1; 
-    font-size: 13px; 
-    line-height: 1.5; 
+    flex-grow: 1;
+    font-size: 13px;
+    line-height: 1.5;
     padding-right: 5px;
-    column-count: 2; 
+    column-count: 3;         /* 2 -> 3 */
     column-gap: 15px;
-    /* ეს ხაზი აიძულებს სვეტების თანმიმდევრულ შევსებას */
-    column-fill: auto; 
-    /* მიზანშეწონილია მაქსიმალური სიმაღლის განსაზღვრა, 
-       რომ ბრაუზერმა იცოდეს, სად დამთავრდეს პირველი სვეტი */
-    max-height: 38mm; 
+    column-fill: auto;
+    height: 100%;
+    overflow-y: auto;
 }
         .med-item-wrapper {
             display: flex; justify-content: space-between; align-items: center;
@@ -264,9 +277,16 @@
         padding: 0 !important;
     }
     
+    /* 5 პაციენტის შემდეგ იწყება ახალი გვერდი */
+.patient-row:nth-child(4n) { 
+    page-break-after: always !important;
+    break-after: page !important;
+}
+
     /* მთავარი ცვლილება: პაციენტი არასდროს გაიჭრება შუაზე */
     .patient-row { 
-        min-height: 35mm !important;
+        height: 45mm !important;
+        min-height: 45mm !important;
         border-bottom: 1px solid #000 !important;
         padding: 1mm 0 !important;
         page-break-inside: avoid !important;
