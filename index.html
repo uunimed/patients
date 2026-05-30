@@ -5,15 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>კლინიკური პორტალი</title>
     <style>
+        /* ფონის ანიმაცია და მთავარი სტილები */
+        @keyframes bgMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f1f5f9;
+            background: linear-gradient(-45deg, #f8fafc, #e2e8f0, #cbd5e1, #f1f5f9);
+            background-size: 400% 400%;
+            animation: bgMove 15s ease infinite;
             color: #334155;
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            justify-content: center; /* ცენტრში შესვლის ფანჯრისთვის */
+            box-sizing: border-box;
         }
 
         /* ---------------- Loader (ჩატვირთვა) ---------------- */
@@ -62,20 +73,21 @@
 
         /* ---------------- ავტორიზაცია ---------------- */
         #login-screen {
-            background: white; padding: 30px; border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex;
-            flex-direction: column; gap: 12px; width: 320px; margin-top: 100px;
+            background: rgba(255, 255, 255, 0.95); padding: 40px 30px; border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: flex;
+            flex-direction: column; gap: 15px; width: 320px;
         }
-        #login-screen h2 { margin: 0 0 10px 0; text-align: center; color: #1e293b; }
-        #login-screen input { padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; outline: none; font-size: 15px;}
-        #login-screen button { background-color: #3b82f6; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; }
+        #login-screen h2 { margin: 0 0 15px 0; text-align: center; color: #1e293b; }
+        #login-screen input { padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 15px; background: white;}
+        #login-screen button { background-color: #3b82f6; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s;}
+        #login-screen button:hover { background-color: #2563eb; }
 
         /* ---------------- მთავარი ინტერფეისი ---------------- */
         #main-interface { display: none; width: 100%; flex-direction: column; align-items: center; }
 
         .controls {
             display: flex; gap: 15px; margin-bottom: 20px; width: 100%;
-            max-width: 210mm; justify-content: center; flex-wrap: wrap;
+            max-width: 297mm; justify-content: center; flex-wrap: wrap;
         }
 
         button.action-btn {
@@ -91,17 +103,17 @@
         button.btn-archive { background-color: #64748b; }
         button.btn-logout { background-color: #ef4444; }
 
-        /* ---------------- ფართო დიზაინი (ეკრანისთვის) ---------------- */
+        /* ---------------- ფართო დიზაინი (A4 Landscape ფორმატი ეკრანზე) ---------------- */
         .page-container {
-            width: 210mm; height: 297mm; background: white; padding: 10mm;
+            width: 297mm; max-width: 100%; min-height: 210mm; background: white; padding: 10mm;
             box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            display: flex; flex-direction: column; border-radius: 12px;
+            display: flex; flex-direction: column; border-radius: 12px; margin-bottom: 20px;
         }
 
         .patient-row {
-            height: 20%; min-height: 20%; max-height: 20%; display: flex;
-            border-bottom: 1.5px solid #cbd5e1; box-sizing: border-box;
-            position: relative; padding: 8px 0; overflow: hidden;
+            min-height: 38mm; /* სტანდარტული სიმაღლე 5 პაციენტისთვის */
+            display: flex; border-bottom: 1.5px solid #cbd5e1; box-sizing: border-box;
+            position: relative; padding: 8px 0;
         }
         .patient-row:last-child { border-bottom: none; }
 
@@ -116,43 +128,52 @@
 
         .col-left {
             width: 55%; border-right: 1.5px solid #cbd5e1; padding: 5px 15px 5px 0;
-            display: flex; flex-direction: column; justify-content: space-between;
+            display: flex; flex-direction: column; justify-content: flex-start; gap: 4px;
         }
         .col-right {
             width: 45%; padding: 5px 0 5px 15px; display: flex; flex-direction: column;
         }
 
-        .header-inputs { display: flex; gap: 10px; margin-bottom: 5px; align-items: flex-end; }
-        .header-inputs input {
-            border: none; border-bottom: 2px solid #94a3b8; border-radius: 0;
-            padding: 4px 5px; font-size: 14px; font-weight: bold; color: #0f172a;
-            outline: none; background: transparent; width: 100%;
+        /* მომრგვალებული საერთო ბექგრაუნდი ჰედერისთვის */
+        .header-inputs { 
+            display: flex; gap: 10px; margin-bottom: 5px; align-items: center; 
+            background-color: #f1f5f9; padding: 8px 12px; border-radius: 10px;
         }
+        .header-inputs input {
+            border: none; border-bottom: 1.5px solid #cbd5e1; border-radius: 0;
+            padding: 4px 5px; font-size: 14px; font-weight: bold; color: #0f172a;
+            outline: none; background: transparent; width: 100%; transition: 0.2s;
+        }
+        .header-inputs input:focus { border-bottom-color: #3b82f6; }
         .input-name { flex-grow: 1; width: 100%; }
-        .input-room { max-width: 45px; min-width: 45px; text-align: center; flex: 0 0 45px; padding: 4px 0 !important; }
+        .input-room { max-width: 45px; min-width: 45px; text-align: center; flex: 0 0 45px; }
         .input-complaint { flex-grow: 1; width: 100%; }
 
         .info-line { display: flex; align-items: center; font-size: 14px; color: #1e293b; gap: 6px; margin-bottom: 2px;}
         .info-line label { font-weight: bold; white-space: nowrap; }
         .info-line select, .info-line input[type="text"] {
-            border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 6px;
-            font-size: 13px; outline: none; background-color: #f8fafc;
+            border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 6px;
+            font-size: 13px; outline: none; background-color: #fff;
         }
-        .info-line select:focus, .info-line input[type="text"]:focus { border-color: #3b82f6; background-color: #fff; }
+        .info-line select:focus, .info-line input[type="text"]:focus { border-color: #3b82f6; }
 
-        .diet-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .diet-left { display: flex; align-items: center; gap: 2px;}
-        .diet-left select { width: auto; padding: 2px 4px; }
-        .diet-right { font-weight: bold; color: #334155; }
+        .diet-container { display: flex; justify-content: flex-start; align-items: center; gap: 6px; }
+        .diet-left { display: flex; align-items: center; gap: 4px; }
+        .next-diet-output { font-weight: bold; color: #0f172a; }
 
         .med-inputs { display: flex; gap: 6px; margin-bottom: 8px; }
-        .med-time { width: 50px !important; text-align: center; font-weight: bold; }
-        .med-name { flex-grow: 1; }
+        .med-time { width: 50px !important; text-align: center; font-weight: bold; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px;}
+        .med-name { flex-grow: 1; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px;}
 
-        .med-list { flex-grow: 1; overflow-y: auto; font-size: 13px; line-height: 1.5; padding-right: 5px;}
+        /* 2 სვეტად განაწილება წამლებისთვის */
+        .med-list { 
+            flex-grow: 1; font-size: 13px; line-height: 1.5; padding-right: 5px;
+            column-count: 2; column-gap: 15px; 
+        }
         .med-item-wrapper {
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px; margin-bottom: 4px;
+            break-inside: avoid-column; page-break-inside: avoid; /* არ გაიჭრას შუაზე სვეტებს შორის */
         }
         .med-text { width: 85%; }
         .med-actions { display: flex; gap: 5px; }
@@ -168,19 +189,33 @@
 
         /* ---------------- არქივის სტილები ---------------- */
         #archive-container {
-            display: none; width: 100%; max-width: 210mm; background: white;
-            padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: none; width: 100%; max-width: 297mm; background: white;
+            padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px;
         }
-        .archive-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;}
-        .archive-header h3 { margin: 0; color: #1e293b; }
-        .archive-count { background: #3b82f6; color: white; padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold;}
+        .archive-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; gap: 15px;
+        }
+        .archive-header h3 { margin: 0; color: #1e293b; white-space: nowrap;}
+        #archive-search {
+            flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px;
+            outline: none; font-size: 14px; max-width: 300px;
+        }
+        .archive-count { background: #3b82f6; color: white; padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold; white-space: nowrap;}
         
-        .archive-item { border-bottom: 1px solid #e2e8f0; padding: 15px 0; display: flex; justify-content: space-between; align-items: center;}
+        .archive-item { border-bottom: 1px solid #e2e8f0; padding: 15px 0; display: flex; justify-content: space-between; align-items: flex-start;}
         .archive-item:last-child { border-bottom: none; }
-        .archive-info h4 { margin: 0 0 5px 0; color: #1e293b; font-size: 15px;}
-        .archive-info p { margin: 2px 0; font-size: 13px; color: #64748b; }
-        .archive-actions { display: flex; gap: 10px; }
+        .archive-info { flex-grow: 1; padding-right: 20px; }
+        .archive-info h4 { margin: 0 0 8px 0; color: #1e293b; font-size: 15px;}
+        .archive-info p { margin: 4px 0; font-size: 13px; color: #64748b; }
         
+        .archive-meds-list { 
+            margin-top: 8px; column-count: 2; column-gap: 20px; 
+            font-size: 13px; color: #334155; border-left: 3px solid #cbd5e1; padding-left: 10px;
+        }
+        .archive-med-item { break-inside: avoid-column; margin-bottom: 3px; }
+
+        .archive-actions { display: flex; gap: 10px; flex-shrink: 0; }
         .btn-arch {
             display: flex; align-items: center; gap: 5px; border: none; padding: 6px 12px;
             font-size: 13px; color: white; border-radius: 6px; cursor: pointer;
@@ -189,33 +224,45 @@
         .btn-arch.view { background-color: #3b82f6; }
         .btn-arch.del { background-color: #ef4444; }
 
-        /* ---------------- ბეჭდვის სკალირება ---------------- */
         @media print {
-            @page { size: A4 landscape; margin: 0; }
-            body { background: none; padding: 0; margin: 0; }
+            @page { size: A4 landscape; margin: 0.5cm; }
+            body { background: none !important; margin: 0 !important; padding: 0 !important; }
             .controls, .med-inputs, .btn-delete-row, .med-actions, #archive-container { display: none !important; }
             #main-interface { display: block !important; }
             
             .page-container {
-                width: 210mm !important; 
-                height: 297mm !important; 
-                transform: scale(0.707) !important;
-                transform-origin: top left !important;
-                margin: 0 !important;
-                padding: 2mm !important; 
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: auto !important; 
                 box-shadow: none !important;
-                border-radius: 0 !important;
-                position: absolute; top: 0; left: 0;
+                padding: 0 !important;
             }
             
-            .patient-row { border-bottom: 1.5px solid #000; padding: 5px 0; }
+            .patient-row { 
+                height: 35mm !important;
+                border-bottom: 1px solid #000 !important;
+                padding: 1mm 0 !important;
+            }
+
+            .header-inputs { gap: 4px !important; }
+            .info-line { font-size: 11px !important; margin-bottom: 1px !important; }
+            .med-list { font-size: 10px !important; }
+            .header-inputs input { font-size: 12px !important; }
+            
+            .col-left { width: 55% !important; padding-right: 5px !important; }
+            .col-right { width: 45% !important; padding-left: 5px !important; }
+            
+            .patient-row:nth-child(5n) { page-break-after: always; }
+            
             .col-left { border-right: 1.5px solid #000; padding-right: 5px;}
-            .info-line select, .info-line input[type="text"] { border: none; background: transparent; padding: 0; height: auto; appearance: none; -webkit-appearance: none; pointer-events: none; }
-            .header-inputs input { border-bottom: 1px solid #000; color: #000; }
+            .header-inputs { background-color: transparent !important; padding: 0 !important; margin-bottom: 2px !important; }
+            .header-inputs input { border-bottom: 1px solid #000 !important; color: #000; font-size: 13px; }
             .header-inputs input:not(:placeholder-shown) { border-bottom: none !important; }
+            
+            .info-line select, .info-line input[type="text"] { border: none !important; background: transparent !important; padding: 0 !important; height: auto; appearance: none; -webkit-appearance: none; pointer-events: none; }
             .allergy-details { display: none !important; }
             .allergy-print-view { display: inline !important; }
-            .med-item-wrapper { border-bottom: none; margin-bottom: 2px;}
+            .med-item-wrapper { border-bottom: none !important; margin-bottom: 1px !important;}
         }
     </style>
 </head>
@@ -223,7 +270,7 @@
 
     <div id="loader-overlay" class="hidden">
         <div class="spinner"></div>
-        <p style="color: #3b82f6; font-weight: bold; margin: 0;">იტვირთება ბაზა...</p>
+        <p style="color: #3b82f6; font-weight: bold; margin: 0;">იტვირთება...</p>
     </div>
 
     <div id="modal-overlay">
@@ -239,7 +286,7 @@
     </div>
 
     <div id="login-screen">
-        <h2>სისტემაში შესვლა</h2>
+        <h2>ShogiPat</h2>
         <input type="text" id="username" placeholder="მომხმარებელი">
         <input type="password" id="password" placeholder="პაროლი">
         <button onclick="login()">შესვლა</button>
@@ -269,7 +316,8 @@
 
         <div id="archive-container">
             <div class="archive-header">
-                <h3>წარსული პაციენტების ისტორია</h3>
+                <h3>პაციენტების ისტორია</h3>
+                <input type="text" id="archive-search" placeholder="ძებნა გვარით ან პალატით..." oninput="filterArchive()">
                 <div class="archive-count">სულ: <span id="archive-counter">0</span></div>
             </div>
             <div id="archive-list"></div>
@@ -280,7 +328,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, push, update, remove, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // კონფიგურაცია - აუცილებლად დაგჭირდებათ databaseURL (ბმული შეცვალეთ თქვენით, თუ სხვანაირი გაქვთ)
+        // კონფიგურაცია
         const firebaseConfig = {
             apiKey: "AIzaSyB2rORw8fNnPcqHMepX9DaH_tz_QvFlOaw",
             authDomain: "patients-a310b.firebaseapp.com",
@@ -288,7 +336,7 @@
             storageBucket: "patients-a310b.firebasestorage.app",
             messagingSenderId: "1023809355619",
             appId: "1:1023809355619:web:e5069192c861bdbeb9dd56",
-            databaseURL: "https://patients-a310b-default-rtdb.firebaseio.com" // <- აქ დაგჭირდებათ თქვენი ბაზის ლინკი!
+            databaseURL: "https://patients-a310b-default-rtdb.firebaseio.com" 
         };
 
         const app = initializeApp(firebaseConfig);
@@ -343,6 +391,7 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('loader-overlay').classList.remove('hidden');
                 document.getElementById('main-interface').style.display = 'flex';
+                document.body.style.justifyContent = 'flex-start';
                 initRealtimeListeners();
             } else {
                 showModal('alert', 'შეცდომა', 'არასწორი მომხმარებელი ან პაროლი!');
@@ -354,11 +403,11 @@
             document.getElementById('password').value = '';
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('main-interface').style.display = 'none';
+            document.body.style.justifyContent = 'center';
         }
 
         function initRealtimeListeners() {
             let initialLoad = true;
-
             const patientsQuery = query(ref(db, "patients_registry"), orderByChild("createdAt"));
             
             onValue(patientsQuery, (snapshot) => {
@@ -377,7 +426,7 @@
                 archivePatients = allPatients.slice().reverse();
 
                 renderActivePatients();
-                renderArchivePatients();
+                filterArchive();
 
                 if (focusedElementId) {
                     let el = document.getElementById(focusedElementId);
@@ -396,21 +445,34 @@
             });
         }
 
-        function renderArchivePatients() {
+        window.filterArchive = function() {
+            const query = document.getElementById('archive-search').value.toLowerCase();
             const archList = document.getElementById('archive-list');
             archList.innerHTML = '';
-            document.getElementById('archive-counter').innerText = archivePatients.length;
             
-            archivePatients.forEach((p) => {
-                let medsText = p.medications && p.medications.length > 0 ? p.medications.map(m => `${m.time} - ${m.name}`).join(', ') : 'არაა';
+            const filtered = archivePatients.filter(p => 
+                (p.name && p.name.toLowerCase().includes(query)) || 
+                (p.room && p.room.toLowerCase().includes(query))
+            );
+
+            document.getElementById('archive-counter').innerText = filtered.length;
+            
+            filtered.forEach((p) => {
+                let medsHTML = '<div style="color:#94a3b8; font-size:13px; margin-top:8px;">არაა დანიშნულება</div>';
+                if(p.medications && p.medications.length > 0) {
+                    medsHTML = `<div class="archive-meds-list">` + 
+                        p.medications.map(m => `<div class="archive-med-item"><strong>${m.time}</strong> - ${m.name}</div>`).join('') + 
+                    `</div>`;
+                }
+
                 const statusLabel = p.isActive ? '<span style="color: #10b981; font-size:12px;">[აქტიური]</span>' : '<span style="color: #64748b; font-size:12px;">[დასრულებული]</span>';
                 
                 const itemHTML = `
                     <div class="archive-item">
                         <div class="archive-info">
                             <h4>${p.name || 'უცნობი პაციენტი'} (პალატა №: ${p.room || '-'}) ${statusLabel}</h4>
-                            <p><strong>ჩივილი:</strong> ${p.complaint || '-'}</p>
-                            <p><strong>დანიშნულება:</strong> ${medsText}</p>
+                            <p style="margin:0;"><strong>ჩივილი:</strong> ${p.complaint || '-'}</p>
+                            ${medsHTML}
                         </div>
                         <div class="archive-actions">
                             <button class="btn-arch view" onclick="restoreToLive('${p.id}')">
@@ -428,6 +490,21 @@
             });
         }
 
+        function fixVisibility(p) {
+            setTimeout(() => {
+                const algDet = document.getElementById('algDet_' + p.id);
+                if(algDet) algDet.style.display = (p.allergy === 'კი' ? 'inline-block' : 'none');
+                
+                const fevTmp = document.getElementById('fevTmp_' + p.id);
+                const fevMed = document.getElementById('fevMed_' + p.id);
+                if(fevTmp) fevTmp.style.display = (p.fever === 'კი' ? 'inline-block' : 'none');
+                if(fevMed) fevMed.style.display = (p.fever === 'კი' ? 'inline-block' : 'none');
+                
+                const custDiet = document.getElementById('custDiet_' + p.id);
+                if(custDiet) custDiet.style.display = (p.diet && !['15(1)','15(2)','15(3)'].includes(p.diet) ? 'inline-block' : 'none');
+            }, 100);
+        }
+
         function renderActivePatients() {
             const container = document.getElementById('page-container');
             container.innerHTML = '';
@@ -441,9 +518,9 @@
                         
                         <div class="col-left">
                             <div class="header-inputs">
-                                <input type="text" id="name_${p.id}" class="input-name" value="${p.name || ''}" placeholder="გვარი, სახელი" onchange="updateField('${p.id}', 'name', this.value)">
-                                <input type="text" id="room_${p.id}" class="input-room" value="${p.room || ''}" placeholder="№" onchange="updateField('${p.id}', 'room', this.value)">
-                                <input type="text" id="complaint_${p.id}" class="input-complaint" value="${p.complaint || ''}" placeholder="ჩივილი / დიაგნოზი" onchange="updateField('${p.id}', 'complaint', this.value)">
+                                <input type="text" id="name_${p.id}" class="input-name" value="${p.name || ''}" placeholder="პაციენტი" onchange="updateField('${p.id}', 'name', this.value)">
+                                <input type="text" id="room_${p.id}" class="input-room" value="${p.room || ''}" placeholder="პალატა" onchange="updateField('${p.id}', 'room', this.value)">
+                                <input type="text" id="complaint_${p.id}" class="input-complaint" value="${p.complaint || ''}" placeholder="ჩივილი / ჩარევა" onchange="updateField('${p.id}', 'complaint', this.value)">
                             </div>
                             
                             <div class="info-line">
@@ -463,7 +540,7 @@
                                     <option value="არა" ${p.allergy === 'არა' ? 'selected' : ''}>არა</option>
                                     <option value="კი" ${p.allergy === 'კი' ? 'selected' : ''}>კი</option>
                                 </select>
-                                <input type="text" id="algDet_${p.id}" class="allergy-details ${p.allergy === 'კი' ? '' : 'hidden'}" style="width: 100px;" value="${p.allergyDetails || ''}" placeholder="რაზე?" onchange="updateField('${p.id}', 'allergyDetails', this.value)">
+                                <input type="text" id="algDet_${p.id}" class="allergy-details" style="width: 100px; ${p.allergy === 'კი' ? '' : 'display:none;'}" value="${p.allergyDetails || ''}" placeholder="რაზე?" onchange="updateField('${p.id}', 'allergyDetails', this.value)">
                                 <span class="allergy-print-view">${p.allergyDetails ? `(<strong>${p.allergyDetails}</strong>)` : ''}</span>
                             </div>
                             
@@ -474,26 +551,24 @@
                                     <option value="არა" ${p.fever === 'არა' ? 'selected' : ''}>არა</option>
                                     <option value="კი" ${p.fever === 'კი' ? 'selected' : ''}>კი</option>
                                 </select>
-                                <input type="text" id="fevTmp_${p.id}" class="fever-input ${p.fever === 'კი' ? '' : 'hidden'}" style="width: 45px;" maxlength="4" value="${p.feverTemp || ''}" placeholder="38,5" oninput="formatFever(event)" onchange="updateField('${p.id}', 'feverTemp', this.value)">
-                                <input type="text" id="fevMed_${p.id}" class="fever-meds ${p.fever === 'კი' ? '' : 'hidden'}" style="width: 100px;" value="${p.feverMed || ''}" placeholder="რა წამალი?" onchange="updateField('${p.id}', 'feverMed', this.value)">
+                                <input type="text" id="fevTmp_${p.id}" class="fever-input" style="width: 45px; ${p.fever === 'კი' ? '' : 'display:none;'}" maxlength="4" value="${p.feverTemp || ''}" placeholder="38,5" oninput="formatFever(event)" onchange="updateField('${p.id}', 'feverTemp', this.value)">
+                                <input type="text" id="fevMed_${p.id}" class="fever-meds" style="width: 100px; ${p.fever === 'კი' ? '' : 'display:none;'}" value="${p.feverMed || ''}" placeholder="რა წამალი?" onchange="updateField('${p.id}', 'feverMed', this.value)">
                             </div>
                             
                             <div class="info-line diet-container">
                                 <div class="diet-left">
-                                    <label>N (</label>
+                                    <label>კვება: ( </label>
                                     <select id="diet_${p.id}" onchange="toggleLocalDiet('${p.id}', this)">
                                         <option value=""></option>
                                         <option value="15(1)" ${p.diet === '15(1)' ? 'selected' : ''}>15(1)</option>
                                         <option value="15(2)" ${p.diet === '15(2)' ? 'selected' : ''}>15(2)</option>
                                         <option value="15(3)" ${p.diet === '15(3)' ? 'selected' : ''}>15(3)</option>
-                                        <option value="9" ${p.diet === '9' ? 'selected' : ''}>9</option>
-                                        <option value="11" ${p.diet === '11' ? 'selected' : ''}>11</option>
-                                        <option value="other" ${p.diet && !['15(1)','15(2)','15(3)','9','11'].includes(p.diet) ? 'selected' : ''}>სხვა...</option>
+                                        <option value="other" ${p.diet && !['15(1)','15(2)','15(3)'].includes(p.diet) ? 'selected' : ''}>სხვა...</option>
                                     </select>
-                                    <label>)</label>
-                                    <input type="text" id="custDiet_${p.id}" class="custom-diet-input ${p.diet && !['15(1)','15(2)','15(3)','9','11'].includes(p.diet) ? '' : 'hidden'}" style="width: 45px;" value="${p.diet || ''}" onchange="updateCustomDiet('${p.id}', this.value)">
+                                    <label> ) ; ვავსებ: </label>
+                                    <input type="text" id="custDiet_${p.id}" class="custom-diet-input" style="width: 45px; ${p.diet && !['15(1)','15(2)','15(3)'].includes(p.diet) ? '' : 'display:none;'}" value="${p.diet || ''}" onchange="updateCustomDiet('${p.id}', this.value)">
                                 </div>
-                                <div class="diet-right next-diet-output">${p.nextDiet || ''}</div>
+                                <div class="next-diet-output">${p.nextDiet || ''}</div>
                             </div>
 
                             <div class="info-line">
@@ -504,8 +579,8 @@
 
                         <div class="col-right">
                             <div class="med-inputs">
-                                <input type="text" id="time_${p.id}" class="med-time" placeholder="HH:MM" maxlength="5" oninput="formatTime(event)" onkeydown="checkMedEnter(event, '${p.id}', this)">
-                                <input type="text" id="med_${p.id}" class="med-name" placeholder="წამლის დასახელება (Enter)" onkeydown="checkMedEnter(event, '${p.id}', this)">
+                                <input type="text" id="time_${p.id}" class="med-time" placeholder="დრო" maxlength="5" oninput="formatTime(event)" onkeydown="checkMedEnter(event, '${p.id}', this)">
+                                <input type="text" id="med_${p.id}" class="med-name" placeholder="მედიკამენტი" onkeydown="checkMedEnter(event, '${p.id}', this)">
                             </div>
                             <div class="med-list">
                                 ${renderMedications(p.id, p.medications || [])}
@@ -514,6 +589,7 @@
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', rowHTML);
+                fixVisibility(p);
             });
         }
 
@@ -563,10 +639,6 @@
         }
 
         window.addPatient = async function() {
-            if (activePatients.length >= 5) {
-                showModal('alert', 'ყურადღება', 'გვერდზე ეტევა მაქსიმუმ 5 პაციენტი.');
-                return;
-            }
             await push(ref(db, "patients_registry"), {
                 name: '', room: '', complaint: '', pain: '', allergy: '', allergyDetails: '',
                 fever: '', feverTemp: '', feverMed: '', diet: '', nextDiet: '', other: '',
@@ -583,23 +655,63 @@
         }
 
         window.updateField = async function(id, field, value) {
-            let obj = {}; obj[field] = value;
+            let obj = {}; 
+            obj[field] = value;
             await update(ref(db, "patients_registry/" + id), obj);
+            
+            if (field === 'allergy') {
+                const algDet = document.getElementById('algDet_' + id);
+                if (algDet) algDet.style.display = (value === 'კი' ? 'inline-block' : 'none');
+            }
+            if (field === 'fever') {
+                const fevTmp = document.getElementById('fevTmp_' + id);
+                const fevMed = document.getElementById('fevMed_' + id);
+                if (fevTmp) fevTmp.style.display = (value === 'კი' ? 'inline-block' : 'none');
+                if (fevMed) fevMed.style.display = (value === 'კი' ? 'inline-block' : 'none');
+            }
+            if (field === 'diet') {
+                const custDiet = document.getElementById('custDiet_' + id);
+                if (custDiet) custDiet.style.display = (value === 'other' ? 'inline-block' : 'none');
+            }
         }
 
         window.toggleLocalAllergy = async function(id, selectElem) {
-            await update(ref(db, "patients_registry/" + id), { allergy: selectElem.value, allergyDetails: '' });
+            const isYes = selectElem.value === 'კი';
+            const algDet = document.getElementById('algDet_' + id);
+            if (algDet) algDet.style.display = isYes ? 'inline-block' : 'none';
+            
+            await update(ref(db, "patients_registry/" + id), { 
+                allergy: selectElem.value,
+                allergyDetails: isYes ? (document.getElementById('algDet_' + id)?.value || '') : ''
+            });
         }
 
         window.toggleLocalFever = async function(id, selectElem) {
-            await update(ref(db, "patients_registry/" + id), { fever: selectElem.value, feverTemp: '', feverMed: '' });
+            const isYes = selectElem.value === 'კი';
+            const fevTmp = document.getElementById('fevTmp_' + id);
+            const fevMed = document.getElementById('fevMed_' + id);
+            
+            if (fevTmp) fevTmp.style.display = isYes ? 'inline-block' : 'none';
+            if (fevMed) fevMed.style.display = isYes ? 'inline-block' : 'none';
+            
+            await update(ref(db, "patients_registry/" + id), { 
+                fever: selectElem.value, 
+                feverTemp: isYes ? (document.getElementById('fevTmp_' + id)?.value || '') : '',
+                feverMed: isYes ? (document.getElementById('fevMed_' + id)?.value || '') : ''
+            });
         }
 
         window.toggleLocalDiet = async function(id, selectElem) {
             const val = selectElem.value;
-            if(val !== 'other') {
+            const custDiet = document.getElementById('custDiet_' + id);
+            
+            if (val !== 'other') {
+                if (custDiet) custDiet.style.display = 'none';
                 let nextDiet = calculateDietLogic(val);
                 await update(ref(db, "patients_registry/" + id), { diet: val, nextDiet: nextDiet });
+            } else {
+                if (custDiet) custDiet.style.display = 'inline-block';
+                await update(ref(db, "patients_registry/" + id), { diet: '', nextDiet: '' });
             }
         }
 
@@ -651,6 +763,7 @@
                 archCont.style.display = 'block'; pageCont.style.display = 'none';
                 toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg> უკან დაბრუნება'; 
                 viewMode = 'archive';
+                document.getElementById('archive-search').focus();
             } else {
                 archCont.style.display = 'none'; pageCont.style.display = 'flex';
                 toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8"></path><polyline points="1 3 23 3 23 8 1 8 1 3"></polyline><line x1="10" y1="12" x2="14" y2="12"></line></svg> არქივი'; 
@@ -659,10 +772,6 @@
         }
 
         window.restoreToLive = async function(id) {
-            if(activePatients.length >= 5) {
-                showModal('alert', 'ყურადღება', 'ჯერ გაათავისუფლეთ ადგილი მთავარ გვერდზე.');
-                return;
-            }
             showModal('confirm', 'აღდგენა', 'გსურთ ამ პაციენტის სამუშაო მაგიდაზე დაბრუნება?', '', async (confirmed) => {
                 if(confirmed) {
                     await update(ref(db, "patients_registry/" + id), { isActive: true });
