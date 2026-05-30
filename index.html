@@ -128,9 +128,9 @@
             padding: 4px 5px; font-size: 14px; font-weight: bold; color: #0f172a;
             outline: none; background: transparent; width: 100%;
         }
-.input-name { flex-grow: 1; width: 100%; }
-.input-room { max-width: 45px; min-width: 45px; text-align: center; flex: 0 0 45px; padding: 4px 0 !important; }
-.input-complaint { flex-grow: 1; width: 100%; }
+        .input-name { flex-grow: 1; width: 100%; }
+        .input-room { max-width: 45px; min-width: 45px; text-align: center; flex: 0 0 45px; padding: 4px 0 !important; }
+        .input-complaint { flex-grow: 1; width: 100%; }
 
         .info-line { display: flex; align-items: center; font-size: 14px; color: #1e293b; gap: 6px; margin-bottom: 2px;}
         .info-line label { font-weight: bold; white-space: nowrap; }
@@ -201,7 +201,6 @@
                 height: 297mm !important; 
                 transform: scale(0.707) !important;
                 transform-origin: top left !important;
-                /* ბეჭდვა იწყება მაქსიმალურად კიდიდან */
                 margin: 0 !important;
                 padding: 2mm !important; 
                 box-shadow: none !important;
@@ -281,6 +280,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyB2rORw8fNnPcqHMepX9DaH_tz_QvFlOaw",
             authDomain: "patients-a310b.firebaseapp.com",
@@ -294,6 +294,7 @@
         const db = getFirestore(app);
 
         let activePatients = [];
+        let archivePatients = [];
         let viewMode = 'live';
 
         // Custom Modal System
@@ -309,7 +310,6 @@
             msgEl.innerText = msg;
             inputEl.value = defaultVal;
             
-            // გასუფთავება
             btnCancel.onclick = null;
             btnOk.onclick = null;
 
@@ -358,22 +358,28 @@
         function initRealtimeListeners() {
             let initialLoad = true;
 
-            const q = query(collection(db, "active_patients"), orderBy("createdAt", "asc"));
+            // ერთიანი ბაზის გამოყენება "patients_registry"
+            const q = query(collection(db, "patients_registry"), orderBy("createdAt", "asc"));
+            
             onSnapshot(q, (snapshot) => {
-                // ვინახავთ აქტიურ ელემენტს, რომ ორმაგი კლიკი აღარ დაგჭირდეთ
                 let focusedElementId = document.activeElement ? document.activeElement.id : null;
                 let cursorPosition = null;
                 if (focusedElementId && (document.activeElement.tagName === 'INPUT')) {
                     cursorPosition = document.activeElement.selectionStart;
                 }
 
-                activePatients = [];
+                let allPatients = [];
                 snapshot.forEach((doc) => {
-                    activePatients.push({ id: doc.id, ...doc.data() });
+                    allPatients.push({ id: doc.id, ...doc.data() });
                 });
-                renderActivePatients();
 
-                // ფოკუსის აღდგენა
+                // გაფილტვრა ლოკალურად: აქტიურები და არქივი
+                activePatients = allPatients.filter(p => p.isActive);
+                archivePatients = allPatients.slice().reverse(); // არქივში ყველა გამოჩნდება, უახლესი პირველად
+
+                renderActivePatients();
+                renderArchivePatients();
+
                 if (focusedElementId) {
                     let el = document.getElementById(focusedElementId);
                     if (el) {
@@ -389,37 +395,37 @@
                     initialLoad = false;
                 }
             });
+        }
 
-            const archiveQ = query(collection(db, "archived_patients"), orderBy("archivedAt", "desc"));
-            onSnapshot(archiveQ, (snapshot) => {
-                const archList = document.getElementById('archive-list');
-                archList.innerHTML = '';
-                document.getElementById('archive-counter').innerText = snapshot.size;
+        function renderArchivePatients() {
+            const archList = document.getElementById('archive-list');
+            archList.innerHTML = '';
+            document.getElementById('archive-counter').innerText = archivePatients.length;
+            
+            archivePatients.forEach((p) => {
+                let medsText = p.medications && p.medications.length > 0 ? p.medications.map(m => `${m.time} - ${m.name}`).join(', ') : 'არაა';
+                const statusLabel = p.isActive ? '<span style="color: #10b981; font-size:12px;">[აქტიური]</span>' : '<span style="color: #64748b; font-size:12px;">[დასრულებული]</span>';
                 
-                snapshot.forEach((docSnap) => {
-                    const p = docSnap.data();
-                    let medsText = p.medications && p.medications.length > 0 ? p.medications.map(m => `${m.time} - ${m.name}`).join(', ') : 'არაა';
-                    const itemHTML = `
-                        <div class="archive-item">
-                            <div class="archive-info">
-                                <h4>${p.name || 'უცნობი'} (პალატა №: ${p.room || '-'})</h4>
-                                <p><strong>ჩივილი:</strong> ${p.complaint || '-'}</p>
-                                <p><strong>დანიშნულება:</strong> ${medsText}</p>
-                            </div>
-                            <div class="archive-actions">
-                                <button class="btn-arch view" onclick="restoreToLive('${docSnap.id}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
-                                    აღდგენა
-                                </button>
-                                <button class="btn-arch del" onclick="deleteFromArchive('${docSnap.id}')">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                    წაშლა
-                                </button>
-                            </div>
+                const itemHTML = `
+                    <div class="archive-item">
+                        <div class="archive-info">
+                            <h4>${p.name || 'უცნობი პაციენტი'} (პალატა №: ${p.room || '-'}) ${statusLabel}</h4>
+                            <p><strong>ჩივილი:</strong> ${p.complaint || '-'}</p>
+                            <p><strong>დანიშნულება:</strong> ${medsText}</p>
                         </div>
-                    `;
-                    archList.insertAdjacentHTML('beforeend', itemHTML);
-                });
+                        <div class="archive-actions">
+                            <button class="btn-arch view" onclick="restoreToLive('${p.id}')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+                                აღდგენა
+                            </button>
+                            <button class="btn-arch del" onclick="deleteFromArchive('${p.id}')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                წაშლა
+                            </button>
+                        </div>
+                    </div>
+                `;
+                archList.insertAdjacentHTML('beforeend', itemHTML);
             });
         }
 
@@ -430,7 +436,7 @@
             activePatients.forEach((p, index) => {
                 const rowHTML = `
                     <div class="patient-row" data-id="${p.id}">
-                        <button class="btn-delete-row no-print" onclick="deletePatient('${p.id}')" title="წაშლა და არქივში გადატანა">
+                        <button class="btn-delete-row no-print" onclick="deletePatient('${p.id}')" title="მთავარი გვერდიდან წაშლა">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
                         
@@ -534,7 +540,7 @@
                     const p = activePatients.find(x => x.id === patientId);
                     let meds = p.medications || [];
                     meds.splice(index, 1);
-                    await updateDoc(doc(db, "active_patients", patientId), { medications: meds });
+                    await updateDoc(doc(db, "patients_registry", patientId), { medications: meds });
                 }
             });
         }
@@ -549,7 +555,9 @@
                     showModal('prompt', 'წამლის რედაქტირება', 'შეცვალეთ წამლის დასახელება:', med.name, async (newName) => {
                         if(newName !== null) {
                             meds[index] = { time: newTime.trim(), name: newName.trim() };
-                            await updateDoc(doc(db, "active_patients", patientId), { medications: meds });
+                            // რედაქტირების შემდეგ ვალაგებთ დროის მიხედვით
+                            meds.sort((a, b) => a.time.localeCompare(b.time));
+                            await updateDoc(doc(db, "patients_registry", patientId), { medications: meds });
                         }
                     });
                 }
@@ -561,52 +569,47 @@
                 showModal('alert', 'ყურადღება', 'გვერდზე ეტევა მაქსიმუმ 5 პაციენტი.');
                 return;
             }
-            await addDoc(collection(db, "active_patients"), {
+            // ახალი პაციენტის დამატება (ავტომატურად isActive: true)
+            await addDoc(collection(db, "patients_registry"), {
                 name: '', room: '', complaint: '', pain: '', allergy: '', allergyDetails: '',
                 fever: '', feverTemp: '', feverMed: '', diet: '', nextDiet: '', other: '',
-                medications: [], createdAt: new Date().getTime()
+                medications: [], createdAt: new Date().getTime(), isActive: true
             });
         }
 
         window.deletePatient = function(id) {
-            showModal('confirm', 'პაციენტის წაშლა', 'ნამდვილად გსურთ პაციენტის წაშლა? პაციენტი შეინახება არქივში.', '', async (confirmed) => {
+            showModal('confirm', 'მთავარი გვერდიდან წაშლა', 'პაციენტი წაიშლება მთავარი გვერდიდან, მაგრამ მაინც დარჩება არქივში. ეთანხმებით?', '', async (confirmed) => {
                 if(confirmed) {
-                    // ვიღებთ ლოკალური სიიდან არქივში უსაფრთხოდ გადასატანად
-                    const p = activePatients.find(x => x.id === id);
-                    if(p) {
-                        const archiveData = { ...p, archivedAt: new Date().getTime() };
-                        delete archiveData.id;
-                        await addDoc(collection(db, "archived_patients"), archiveData);
-                        await deleteDoc(doc(db, "active_patients", id));
-                    }
+                    // აქტიური სტატუსის გაუქმება (გადადის მხოლოდ არქივში)
+                    await updateDoc(doc(db, "patients_registry", id), { isActive: false });
                 }
             });
         }
 
         window.updateField = async function(id, field, value) {
             let obj = {}; obj[field] = value;
-            await updateDoc(doc(db, "active_patients", id), obj);
+            await updateDoc(doc(db, "patients_registry", id), obj);
         }
 
         window.toggleLocalAllergy = async function(id, selectElem) {
-            await updateDoc(doc(db, "active_patients", id), { allergy: selectElem.value, allergyDetails: '' });
+            await updateDoc(doc(db, "patients_registry", id), { allergy: selectElem.value, allergyDetails: '' });
         }
 
         window.toggleLocalFever = async function(id, selectElem) {
-            await updateDoc(doc(db, "active_patients", id), { fever: selectElem.value, feverTemp: '', feverMed: '' });
+            await updateDoc(doc(db, "patients_registry", id), { fever: selectElem.value, feverTemp: '', feverMed: '' });
         }
 
         window.toggleLocalDiet = async function(id, selectElem) {
             const val = selectElem.value;
             if(val !== 'other') {
                 let nextDiet = calculateDietLogic(val);
-                await updateDoc(doc(db, "active_patients", id), { diet: val, nextDiet: nextDiet });
+                await updateDoc(doc(db, "patients_registry", id), { diet: val, nextDiet: nextDiet });
             }
         }
 
         window.updateCustomDiet = async function(id, value) {
             let nextDiet = calculateDietLogic(value.toUpperCase());
-            await updateDoc(doc(db, "active_patients", id), { diet: value.toUpperCase(), nextDiet: nextDiet });
+            await updateDoc(doc(db, "patients_registry", id), { diet: value.toUpperCase(), nextDiet: nextDiet });
         }
 
         function calculateDietLogic(val) {
@@ -636,7 +639,10 @@
                 let currentMeds = currentPatient.medications || [];
                 currentMeds.push({ time: timeVal, name: nameVal });
                 
-                await updateDoc(doc(db, "active_patients", id), { medications: currentMeds });
+                // დროის მიხედვით ზრდადად დალაგება
+                currentMeds.sort((a, b) => a.time.localeCompare(b.time));
+                
+                await updateDoc(doc(db, "patients_registry", id), { medications: currentMeds });
                 nameIn.value = ''; nameIn.focus();
             }
         }
@@ -657,33 +663,23 @@
             }
         }
 
-        window.restoreToLive = async function(archiveId) {
+        window.restoreToLive = async function(id) {
             if(activePatients.length >= 5) {
                 showModal('alert', 'ყურადღება', 'ჯერ გაათავისუფლეთ ადგილი მთავარ გვერდზე.');
                 return;
             }
             showModal('confirm', 'აღდგენა', 'გსურთ ამ პაციენტის სამუშაო მაგიდაზე დაბრუნება?', '', async (confirmed) => {
                 if(confirmed) {
-                    const docRef = doc(db, "archived_patients", archiveId);
-                    // ვიღებთ ბაზიდან აღსადგენად
-                    import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js").then(async ({ getDoc }) => {
-                        const docSnap = await getDoc(docRef);
-                        if(docSnap.exists()) {
-                            const data = docSnap.data();
-                            delete data.archivedAt; data.createdAt = new Date().getTime();
-                            await addDoc(collection(db, "active_patients"), data);
-                            await deleteDoc(docRef); 
-                            toggleArchive();
-                        }
-                    });
+                    await updateDoc(doc(db, "patients_registry", id), { isActive: true });
+                    toggleArchive();
                 }
             });
         }
 
-        window.deleteFromArchive = function(archiveId) {
+        window.deleteFromArchive = function(id) {
             showModal('confirm', 'სამუდამოდ წაშლა', 'ნამდვილად გსურთ ბაზიდან სამუდამოდ წაშლა?', '', async (confirmed) => {
                 if(confirmed) {
-                    await deleteDoc(doc(db, "archived_patients", archiveId));
+                    await deleteDoc(doc(db, "patients_registry", id));
                 }
             });
         }
