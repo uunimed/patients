@@ -306,17 +306,21 @@
     .info-line select, .info-line input[type="text"] { border: none !important; background: transparent !important; padding: 0 !important; height: auto; appearance: none; -webkit-appearance: none; pointer-events: none; }
     .allergy-details { display: none !important; }
     .allergy-print-view { display: inline !important; }
-    .med-item-wrapper { border-bottom: none !important; margin-bottom: 1px !important; }
-    
+    .med-item-wrapper {
+        border-bottom: none !important;
+        margin-bottom: 0.2 !important;
+        padding-bottom: 0.2 !important;
+        line-height: 1.0 !important;
+    }    
     /* მედიკამენტების სია - არ გაიჭრას შუაში */
     .med-list {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+        font-size: 10px !important;
+        line-height: 1.0 !important;
     }
     
     .med-item-wrapper {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
     }
 }
         /* დღის და ღამის წამლების გამყოფი */
