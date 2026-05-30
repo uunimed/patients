@@ -278,20 +278,21 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getDatabase, ref, push, update, remove, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Firebase Config
+        // კონფიგურაცია - აუცილებლად დაგჭირდებათ databaseURL (ბმული შეცვალეთ თქვენით, თუ სხვანაირი გაქვთ)
         const firebaseConfig = {
             apiKey: "AIzaSyB2rORw8fNnPcqHMepX9DaH_tz_QvFlOaw",
             authDomain: "patients-a310b.firebaseapp.com",
             projectId: "patients-a310b",
             storageBucket: "patients-a310b.firebasestorage.app",
             messagingSenderId: "1023809355619",
-            appId: "1:1023809355619:web:e5069192c861bdbeb9dd56"
+            appId: "1:1023809355619:web:e5069192c861bdbeb9dd56",
+            databaseURL: "https://patients-a310b-default-rtdb.firebaseio.com" // <- აქ დაგჭირდებათ თქვენი ბაზის ლინკი!
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
 
         let activePatients = [];
         let archivePatients = [];
@@ -358,10 +359,9 @@
         function initRealtimeListeners() {
             let initialLoad = true;
 
-            // ერთიანი ბაზის გამოყენება "patients_registry"
-            const q = query(collection(db, "patients_registry"), orderBy("createdAt", "asc"));
+            const patientsQuery = query(ref(db, "patients_registry"), orderByChild("createdAt"));
             
-            onSnapshot(q, (snapshot) => {
+            onValue(patientsQuery, (snapshot) => {
                 let focusedElementId = document.activeElement ? document.activeElement.id : null;
                 let cursorPosition = null;
                 if (focusedElementId && (document.activeElement.tagName === 'INPUT')) {
@@ -369,13 +369,12 @@
                 }
 
                 let allPatients = [];
-                snapshot.forEach((doc) => {
-                    allPatients.push({ id: doc.id, ...doc.data() });
+                snapshot.forEach((childSnapshot) => {
+                    allPatients.push({ id: childSnapshot.key, ...childSnapshot.val() });
                 });
 
-                // გაფილტვრა ლოკალურად: აქტიურები და არქივი
                 activePatients = allPatients.filter(p => p.isActive);
-                archivePatients = allPatients.slice().reverse(); // არქივში ყველა გამოჩნდება, უახლესი პირველად
+                archivePatients = allPatients.slice().reverse();
 
                 renderActivePatients();
                 renderArchivePatients();
@@ -540,7 +539,7 @@
                     const p = activePatients.find(x => x.id === patientId);
                     let meds = p.medications || [];
                     meds.splice(index, 1);
-                    await updateDoc(doc(db, "patients_registry", patientId), { medications: meds });
+                    await update(ref(db, "patients_registry/" + patientId), { medications: meds });
                 }
             });
         }
@@ -555,9 +554,8 @@
                     showModal('prompt', 'წამლის რედაქტირება', 'შეცვალეთ წამლის დასახელება:', med.name, async (newName) => {
                         if(newName !== null) {
                             meds[index] = { time: newTime.trim(), name: newName.trim() };
-                            // რედაქტირების შემდეგ ვალაგებთ დროის მიხედვით
                             meds.sort((a, b) => a.time.localeCompare(b.time));
-                            await updateDoc(doc(db, "patients_registry", patientId), { medications: meds });
+                            await update(ref(db, "patients_registry/" + patientId), { medications: meds });
                         }
                     });
                 }
@@ -569,47 +567,45 @@
                 showModal('alert', 'ყურადღება', 'გვერდზე ეტევა მაქსიმუმ 5 პაციენტი.');
                 return;
             }
-            // ახალი პაციენტის დამატება (ავტომატურად isActive: true)
-            await addDoc(collection(db, "patients_registry"), {
+            await push(ref(db, "patients_registry"), {
                 name: '', room: '', complaint: '', pain: '', allergy: '', allergyDetails: '',
                 fever: '', feverTemp: '', feverMed: '', diet: '', nextDiet: '', other: '',
-                medications: [], createdAt: new Date().getTime(), isActive: true
+                createdAt: new Date().getTime(), isActive: true
             });
         }
 
         window.deletePatient = function(id) {
             showModal('confirm', 'მთავარი გვერდიდან წაშლა', 'პაციენტი წაიშლება მთავარი გვერდიდან, მაგრამ მაინც დარჩება არქივში. ეთანხმებით?', '', async (confirmed) => {
                 if(confirmed) {
-                    // აქტიური სტატუსის გაუქმება (გადადის მხოლოდ არქივში)
-                    await updateDoc(doc(db, "patients_registry", id), { isActive: false });
+                    await update(ref(db, "patients_registry/" + id), { isActive: false });
                 }
             });
         }
 
         window.updateField = async function(id, field, value) {
             let obj = {}; obj[field] = value;
-            await updateDoc(doc(db, "patients_registry", id), obj);
+            await update(ref(db, "patients_registry/" + id), obj);
         }
 
         window.toggleLocalAllergy = async function(id, selectElem) {
-            await updateDoc(doc(db, "patients_registry", id), { allergy: selectElem.value, allergyDetails: '' });
+            await update(ref(db, "patients_registry/" + id), { allergy: selectElem.value, allergyDetails: '' });
         }
 
         window.toggleLocalFever = async function(id, selectElem) {
-            await updateDoc(doc(db, "patients_registry", id), { fever: selectElem.value, feverTemp: '', feverMed: '' });
+            await update(ref(db, "patients_registry/" + id), { fever: selectElem.value, feverTemp: '', feverMed: '' });
         }
 
         window.toggleLocalDiet = async function(id, selectElem) {
             const val = selectElem.value;
             if(val !== 'other') {
                 let nextDiet = calculateDietLogic(val);
-                await updateDoc(doc(db, "patients_registry", id), { diet: val, nextDiet: nextDiet });
+                await update(ref(db, "patients_registry/" + id), { diet: val, nextDiet: nextDiet });
             }
         }
 
         window.updateCustomDiet = async function(id, value) {
             let nextDiet = calculateDietLogic(value.toUpperCase());
-            await updateDoc(doc(db, "patients_registry", id), { diet: value.toUpperCase(), nextDiet: nextDiet });
+            await update(ref(db, "patients_registry/" + id), { diet: value.toUpperCase(), nextDiet: nextDiet });
         }
 
         function calculateDietLogic(val) {
@@ -639,10 +635,9 @@
                 let currentMeds = currentPatient.medications || [];
                 currentMeds.push({ time: timeVal, name: nameVal });
                 
-                // დროის მიხედვით ზრდადად დალაგება
                 currentMeds.sort((a, b) => a.time.localeCompare(b.time));
                 
-                await updateDoc(doc(db, "patients_registry", id), { medications: currentMeds });
+                await update(ref(db, "patients_registry/" + id), { medications: currentMeds });
                 nameIn.value = ''; nameIn.focus();
             }
         }
@@ -670,7 +665,7 @@
             }
             showModal('confirm', 'აღდგენა', 'გსურთ ამ პაციენტის სამუშაო მაგიდაზე დაბრუნება?', '', async (confirmed) => {
                 if(confirmed) {
-                    await updateDoc(doc(db, "patients_registry", id), { isActive: true });
+                    await update(ref(db, "patients_registry/" + id), { isActive: true });
                     toggleArchive();
                 }
             });
@@ -679,7 +674,7 @@
         window.deleteFromArchive = function(id) {
             showModal('confirm', 'სამუდამოდ წაშლა', 'ნამდვილად გსურთ ბაზიდან სამუდამოდ წაშლა?', '', async (confirmed) => {
                 if(confirmed) {
-                    await deleteDoc(doc(db, "patients_registry", id));
+                    await remove(ref(db, "patients_registry/" + id));
                 }
             });
         }
