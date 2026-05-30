@@ -184,7 +184,12 @@
             border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px; margin-bottom: 4px;
             break-inside: avoid-column; page-break-inside: avoid; /* არ გაიჭრას შუაზე სვეტებს შორის */
         }
-        .med-text { width: 85%; }
+.med-text { 
+            width: 85%; 
+            white-space: nowrap; /* ეს ხელს შეუშლის ტექსტის ახალ ხაზზე გადასვლას */
+            overflow: hidden;    /* ეს აუცილებელია, თუ ტექსტი კონტეინერზე გრძელია */
+            text-overflow: ellipsis; /* თუ ძალიან გრძელი იქნება, ბოლოში წერტილებს დაუსვამს */
+        }
         .med-actions { display: flex; gap: 5px; }
         .med-btn {
             background: none; border: none; cursor: pointer; padding: 2px 5px;
@@ -855,9 +860,12 @@ window.renderMedications = function(patientId, meds, isArchive = false) {
         result += dayMeds.map(buildMedHTML).join('');
     }
     
-    if (dayMeds.length > 0 && nightMeds.length > 0) {
-        result += '<div style="border-top: 2px solid #cbd5e1; margin: 8px 0 4px 0;"></div>';
-    }
+// საძიებო სიტყვა: "border-top: 2px solid #cbd5e1"
+
+if (dayMeds.length > 0 && nightMeds.length > 0) {
+    // მანძილი შევამცირე 2px-მდე (ზემოთაც და ქვემოთაც)
+    result += '<div style="border-top: 2px solid #cbd5e1; margin: 0px 0;"></div>';
+}
     
     if (nightMeds.length > 0) {
         result += nightMeds.map(buildMedHTML).join('');
