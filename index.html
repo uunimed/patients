@@ -166,10 +166,19 @@
         .med-name { flex-grow: 1; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px;}
 
         /* 2 სვეტად განაწილება წამლებისთვის */
-        .med-list { 
-            flex-grow: 1; font-size: 13px; line-height: 1.5; padding-right: 5px;
-            column-count: 2; column-gap: 15px; 
-        }
+.med-list { 
+    flex-grow: 1; 
+    font-size: 13px; 
+    line-height: 1.5; 
+    padding-right: 5px;
+    column-count: 2; 
+    column-gap: 15px;
+    /* ეს ხაზი აიძულებს სვეტების თანმიმდევრულ შევსებას */
+    column-fill: auto; 
+    /* მიზანშეწონილია მაქსიმალური სიმაღლის განსაზღვრა, 
+       რომ ბრაუზერმა იცოდეს, სად დამთავრდეს პირველი სვეტი */
+    max-height: 38mm; 
+}
         .med-item-wrapper {
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px; margin-bottom: 4px;
@@ -272,10 +281,12 @@
 
     .header-inputs { gap: 4px !important; }
     .info-line { font-size: 11px !important; margin-bottom: 1px !important; }
-    .med-list { 
+.med-list { 
         font-size: 10px !important;
         column-count: 2 !important;
         column-gap: 10px !important;
+        /* დაამატეთ ეს ხაზი */
+        column-fill: auto !important; 
     }
     .header-inputs input { font-size: 12px !important; }
     
