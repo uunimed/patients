@@ -735,6 +735,34 @@
     word-break: break-word;
 }
 
+/* ---------------- პერსონალური სქროლერი ---------------- */
+::-webkit-scrollbar {
+    width: 8px; /* ვერტიკალური სქროლის სიგანე */
+    height: 8px; /* ჰორიზონტალური სქროლის სიმაღლე */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9; /* სქროლის ფონის ფერი (შენი საიტის ფერებში) */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* სქროლერის ფერი */
+    border-radius: 10px;
+    transition: 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* მაუსის მიტანისას სქროლერის ფერი */
+}
+
+/* რომ არ გამოჩნდეს სქროლი ბეჭდვის დროს */
+@media print {
+    ::-webkit-scrollbar {
+        display: none;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -1420,9 +1448,26 @@ function getFirstWords(text, wordCount) {
     return firstWords;
 }
 
-        function renderActivePatients() {
+function renderActivePatients() {
             const container = document.getElementById('page-container');
             container.innerHTML = '';
+
+            // --- დამატებული ლოგიკა: როცა პაციენტები არ არიან ---
+            if (!activePatients || activePatients.length === 0) {
+                container.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: #94a3b8; text-align: center;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 15px; opacity: 0.6;">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="9" y1="15" x2="15" y2="15"></line>
+                        </svg>
+                        <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #475569;">აქტიური პაციენტები არ არის</h3>
+                        <p style="margin: 0; font-size: 14px;">ახალი პაციენტის დასამატებლად დააჭირეთ ღილაკს "დამატება".</p>
+                    </div>
+                `;
+                return; // ვაჩერებთ ფუნქციას აქ, თუ მასივი ცარიელია
+            }
+            // ----------------------------------------------------
 
             activePatients.forEach((p, index) => {
                 const rowHTML = `
